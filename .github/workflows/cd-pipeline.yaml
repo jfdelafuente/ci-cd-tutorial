@@ -58,8 +58,9 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: |
+            ${{env.IMAGE}}:latest
+            ${{env.IMAGE}}:${{ github.run_number }}
 
       - name: Enable the Billing API
         run: |
@@ -72,7 +73,7 @@ jobs:
 
           gcloud run deploy ${{vars.GCR_PROJECT_NAME}} \
           --region ${{vars.GCR_REGION}} \
-          --image ${{env.IMAGE}}:${{ github.run_number }} \
+          --image ${{env.IMAGE}} \
           --platform "managed" \
           --allow-unauthenticated \
           --tag production
@@ -85,7 +86,7 @@ jobs:
           # Deploy service with to staging environment
           gcloud run deploy ${{vars.GCR_STAGING_PROJECT_NAME}} \
           --region ${{vars.GCR_REGION}} \
-          --image ${{env.IMAGE}}:${{ github.run_number }} \
+          --image ${{env.IMAGE}} \
           --platform "managed" \
           --allow-unauthenticated \
           --tag staging
