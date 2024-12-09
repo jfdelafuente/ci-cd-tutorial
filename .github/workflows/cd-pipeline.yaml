@@ -54,7 +54,7 @@ jobs:
 
       - name: Push the image to Docker hub
         run: |
-          docker push ${{env.IMAGE}}
+          docker push ${{env.IMAGE}}:${{ github.run_number }}
 
       - name: Enable the Billing API
         run: |
@@ -63,9 +63,11 @@ jobs:
       - name: Deploy to GCP Run - Production environment (If a new release was published from the master branch)
         if: github.event_name == 'release' && github.event.action == 'published' && github.event.release.target_commitish == 'main'
         run: |
+          echo "Deploying to Production environment"
+
           gcloud run deploy ${{vars.GCR_PROJECT_NAME}} \
           --region ${{vars.GCR_REGION}} \
-          --image ${{env.IMAGE}} \
+          --image ${{env.IMAGE}}:${{ github.run_number }} \
           --platform "managed" \
           --allow-unauthenticated \
           --tag production
@@ -78,7 +80,7 @@ jobs:
           # Deploy service with to staging environment
           gcloud run deploy ${{vars.GCR_STAGING_PROJECT_NAME}} \
           --region ${{vars.GCR_REGION}} \
-          --image ${{env.IMAGE}} \
+          --image ${{env.IMAGE}}:${{ github.run_number }} \
           --platform "managed" \
           --allow-unauthenticated \
           --tag staging
