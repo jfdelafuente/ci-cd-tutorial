@@ -16,7 +16,7 @@ jobs:
     name: Setup, test, and build project
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install dependencies
         run: npm ci
@@ -55,7 +55,7 @@ jobs:
       - name: Push the image to Docker hub
         run: |
           docker push ${{env.IMAGE}}
-
+          
       - name: Enable the Billing API
         run: |
           gcloud services enable cloudbilling.googleapis.com --project=${{secrets.GCP_PROJECT_ID}}
@@ -63,6 +63,8 @@ jobs:
       - name: Deploy to GCP Run - Production environment (If a new release was published from the master branch)
         if: github.event_name == 'release' && github.event.action == 'published' && github.event.release.target_commitish == 'main'
         run: |
+          echo "Deploying to Production environment"
+
           gcloud run deploy ${{vars.GCR_PROJECT_NAME}} \
           --region ${{vars.GCR_REGION}} \
           --image ${{env.IMAGE}} \
